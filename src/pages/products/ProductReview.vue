@@ -27,7 +27,7 @@
               <a-checkbox
                 :checked="selectedQueueIds.includes(item.id)"
                 @click.stop
-                @change="(event) => toggleQueueSelect(item.id, event.target.checked)"
+                @change="(event: any) => toggleQueueSelect(item.id, event.target.checked)"
               />
               <div class="pg-task-title" :title="item.productName">{{ item.productName }}</div>
             </div>

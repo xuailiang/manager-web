@@ -10,6 +10,31 @@ export type ProductReviewStatus =
   | 'need_fix'
   | 'resubmitted'
 
+export interface BrandItem {
+  id: string
+  name: string
+  enName?: string
+  logo: string
+  company: string
+  level: 'top' | 'normal' | 'risk' | 'banned'
+  status: 'active' | 'inactive'
+  merchantCount: number
+  createdAt: string
+}
+
+export interface CategoryItem {
+  id: string
+  parentId: string | null
+  name: string
+  level: number
+  hasChildren: boolean
+  commissionRate: number
+  requireCert: boolean
+  depositAmount: number
+  status: 'active' | 'disabled'
+  children?: CategoryItem[]
+}
+
 export type OrderInterventionStatus =
   | 'normal'
   | 'risk_detected'

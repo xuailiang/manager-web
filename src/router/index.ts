@@ -21,8 +21,8 @@ const routes: RouteRecordRaw[] = [
       { path: 'products/list', component: () => import('../pages/products/ProductList.vue'), meta: { title: '商品列表', key: 'products-list', root: 'products' } },
       { path: 'products/review', component: () => import('../pages/products/ProductReview.vue'), meta: { title: '商品审核', key: 'products-review', root: 'products' } },
       { path: 'products/detail', component: ProductDetail, meta: { title: '商品详情', key: 'products-detail', root: 'products' } },
-      { path: 'products/brands', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '品牌治理', subtitle: '管理品牌准入、授权到期、风险品牌观察名单。' }, meta: { title: '品牌治理', key: 'products-brand', root: 'products' } },
-      { path: 'products/categories', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '类目治理', subtitle: '类目准入规则、资质要求和类目风险阈值管理。' }, meta: { title: '类目治理', key: 'products-category', root: 'products' } },
+      { path: 'products/brands', component: () => import('../pages/products/BrandGovernance.vue'), meta: { title: '品牌治理', key: 'products-brand', root: 'products' } },
+      { path: 'products/categories', component: () => import('../pages/products/CategoryGovernance.vue'), meta: { title: '类目治理', key: 'products-category', root: 'products' } },
 
       { path: 'orders/list', component: () => import('../pages/orders/OrderList.vue'), meta: { title: '订单列表', key: 'orders-list', root: 'orders' } },
       { path: 'orders/exception', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '异常订单', subtitle: '聚合超时未发货、物流中断、多次投诉订单。' }, meta: { title: '异常订单', key: 'orders-exception', root: 'orders' } },
@@ -49,14 +49,14 @@ const routes: RouteRecordRaw[] = [
       { path: 'finance/reconciliation', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '对账中心', subtitle: '平台-商户-渠道三方对账与差异追踪。' }, meta: { title: '对账中心', key: 'finance-recon', root: 'finance' } },
 
       { path: 'marketing/activity', component: () => import('../pages/marketing/MarketingGovernance.vue'), meta: { title: '活动治理', key: 'marketing-activity', root: 'marketing' } },
-      { path: 'marketing/coupons', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '券池治理', subtitle: '券池状态、预算消耗、违规核销监控。' }, meta: { title: '券池治理', key: 'marketing-coupon', root: 'marketing' } },
-      { path: 'marketing/redemption', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '核销监控', subtitle: '核销时段、门店渠道、异常核销规则命中。' }, meta: { title: '核销监控', key: 'marketing-redemption', root: 'marketing' } },
-      { path: 'marketing/roi', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: 'ROI 看板', subtitle: '活动投入产出、商户贡献、渠道转化漏斗。' }, meta: { title: 'ROI看板', key: 'marketing-roi', root: 'marketing' } },
+      { path: 'marketing/coupons', component: () => import('../pages/marketing/CouponGovernance.vue'), meta: { title: '券池治理', key: 'marketing-coupon', root: 'marketing' } },
+      { path: 'marketing/redemption', component: () => import('../pages/marketing/RedemptionMonitor.vue'), meta: { title: '核销监控', key: 'marketing-redemption', root: 'marketing' } },
+      { path: 'marketing/roi', component: () => import('../pages/marketing/MarketingROI.vue'), meta: { title: 'ROI看板', key: 'marketing-roi', root: 'marketing' } },
 
       { path: 'risk/rules', component: () => import('../pages/risk/RiskCenter.vue'), meta: { title: '风险规则', key: 'risk-rules', root: 'risk' } },
-      { path: 'risk/hits', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '风险命中', subtitle: '规则命中详情、证据、人工复核结论。' }, meta: { title: '风险命中', key: 'risk-hits', root: 'risk' } },
-      { path: 'risk/penalty', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '处罚中心', subtitle: '限制流量、下架、冻结销售、扣分。' }, meta: { title: '处罚中心', key: 'risk-penalty', root: 'risk' } },
-      { path: 'risk/appeal', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '申诉中心', subtitle: '商户申诉受理、补件、复审和结果通知。' }, meta: { title: '申诉中心', key: 'risk-appeal', root: 'risk' } },
+      { path: 'risk/hits', component: () => import('../pages/risk/RiskHitRecords.vue'), meta: { title: '风险命中', key: 'risk-hits', root: 'risk' } },
+      { path: 'risk/penalty', component: () => import('../pages/risk/PenaltyCenter.vue'), meta: { title: '处罚中心', key: 'risk-penalty', root: 'risk' } },
+      { path: 'risk/appeal', component: () => import('../pages/risk/AppealCenter.vue'), meta: { title: '申诉中心', key: 'risk-appeal', root: 'risk' } },
 
       { path: 'ops/messages', component: () => import('../pages/ops/MessageCenter.vue'), meta: { title: '消息中心', key: 'ops-messages', root: 'ops' } },
       { path: 'ops/tasks', component: () => import('../pages/common/ModulePlaceholder.vue'), props: { title: '任务中心', subtitle: '聚合审核任务、协同任务、逾期工单。' }, meta: { title: '任务中心', key: 'ops-tasks', root: 'ops' } },

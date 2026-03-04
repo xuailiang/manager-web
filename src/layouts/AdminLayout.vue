@@ -60,9 +60,62 @@
               <span class="theme-label">主题</span>
               <a-switch :checked="isDark" checked-children="暗" un-checked-children="亮" @change="toggleTheme" />
             </a-space>
-            <a-badge :count="11" :offset="[2, 2]">
-              <BellOutlined class="header-icon" />
-            </a-badge>
+
+            <a-popover placement="bottomRight" trigger="click" overlayClassName="notification-popover" v-model:open="popoverVisible">
+              <a-badge :count="unreadCount" :offset="[2, 2]" style="cursor: pointer;">
+                <BellOutlined class="header-icon" />
+              </a-badge>
+
+              <template #content>
+                <div class="notification-panel">
+                  <a-tabs v-model:activeKey="activeMsgTab">
+                    <a-tab-pane key="all" :tab="'全部通知'"></a-tab-pane>
+                    <a-tab-pane key="alert" :tab="'风控预警'"></a-tab-pane>
+                    <a-tab-pane key="todo" :tab="'待办事项'"></a-tab-pane>
+                  </a-tabs>
+                  
+                  <div class="msg-list-container">
+                    <a-list item-layout="horizontal" :data-source="filteredMessages" :locale="{ emptyText: '暂无新消息' }">
+                      <template #renderItem="{ item }">
+                        <a-list-item 
+                          class="msg-item" 
+                          :class="{ 'is-read': item.isRead }"
+                          @click="onMessageClick(item)"
+                        >
+                          <a-list-item-meta :description="item.description">
+                            <template #title>
+                              <div class="msg-title-wrap">
+                                <span class="msg-title">{{ item.title }}</span>
+                                <a-tag v-if="item.type === 'alert'" color="error" size="small">告警</a-tag>
+                                <a-tag v-else-if="item.type === 'todo'" color="processing" size="small">待办</a-tag>
+                              </div>
+                            </template>
+                            <template #avatar>
+                              <a-avatar 
+                                :style="{ backgroundColor: item.type === 'alert' ? '#fff1f0' : '#e6f4ff', color: item.type === 'alert' ? '#cf1322' : '#1677ff' }"
+                              >
+                                <NotificationOutlined v-if="item.type === 'notification'" />
+                                <WarningOutlined v-else-if="item.type === 'alert'" />
+                                <CheckSquareOutlined v-else-if="item.type === 'todo'" />
+                                <MessageOutlined v-else />
+                              </a-avatar>
+                            </template>
+                          </a-list-item-meta>
+                          <div class="msg-time">{{ item.createdAt }}</div>
+                        </a-list-item>
+                      </template>
+                    </a-list>
+                  </div>
+                  
+                  <div class="msg-footer">
+                    <a-button type="link" size="small" @click="handleClearRead">清空已读</a-button>
+                    <a-button type="link" size="small" @click="handleMarkAllRead">全部标为已读</a-button>
+                    <a-button type="link" size="small" @click="goToMessageCenter">查看更多历史</a-button>
+                  </div>
+                </div>
+              </template>
+            </a-popover>
+
             <a-dropdown>
               <a-space class="user-entry">
                 <a-avatar size="small" class="header-avatar">平</a-avatar>
@@ -75,7 +128,7 @@
               <template #overlay>
                 <a-menu>
                   <a-menu-item @click="router.push('/system/roles')">权限设置</a-menu-item>
-                  <a-menu-item @click="router.push('/ops/messages')">消息中心</a-menu-item>
+                  <a-menu-item @click="router.push('/ops/messages')">站内信归档</a-menu-item>
                   <a-menu-divider />
                   <a-menu-item @click="logout">退出登录</a-menu-item>
                 </a-menu>
@@ -117,10 +170,12 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { RouterView, useRoute, useRouter } from 'vue-router'
-import { BellOutlined, DownOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons-vue'
+import { BellOutlined, DownOutlined, MenuFoldOutlined, MenuUnfoldOutlined, NotificationOutlined, WarningOutlined, CheckSquareOutlined, MessageOutlined } from '@ant-design/icons-vue'
 import { menuTree } from '../utils/menu'
 import { clearAuth, getName, getRole } from '../utils/auth'
 import { setThemeMode, themeMode } from '../utils/theme'
+import { getMessages, getUnreadCount, markAsRead, markAllAsRead, clearAllRead } from '../mock/message'
+import type { SiteMessage } from '../types/message'
 
 const router = useRouter()
 const route = useRoute()
@@ -283,4 +338,106 @@ const logout = () => {
   clearAuth()
   router.replace('/login')
 }
+
+// --- Notification Logic ---
+const popoverVisible = ref(false)
+const activeMsgTab = ref('all')
+const messages = ref<SiteMessage[]>([])
+const unreadCount = ref(0)
+
+const reloadMessages = () => {
+  messages.value = getMessages()
+  unreadCount.value = getUnreadCount()
+}
+
+// Trigger initial load
+onMounted(() => {
+  reloadMessages()
+})
+
+const filteredMessages = computed(() => {
+  if (activeMsgTab.value === 'all') return messages.value
+  return messages.value.filter(m => m.type === activeMsgTab.value)
+})
+
+const onMessageClick = (item: SiteMessage) => {
+  if (!item.isRead) {
+    markAsRead(item.id)
+    reloadMessages() // Soft reload instead of full page
+  }
+}
+
+const handleMarkAllRead = () => {
+  markAllAsRead()
+  reloadMessages()
+}
+
+const handleClearRead = () => {
+  clearAllRead()
+  reloadMessages()
+}
+
+const goToMessageCenter = () => {
+  popoverVisible.value = false
+  router.push('/ops/messages')
+}
 </script>
+
+<style scoped>
+.notification-panel {
+  width: 320px;
+}
+.notification-panel :deep(.ant-tabs-nav) {
+  margin-bottom: 0;
+  padding: 0 16px;
+}
+.msg-list-container {
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 0 16px;
+}
+.msg-item {
+  cursor: pointer;
+  transition: background-color 0.3s;
+  padding: 12px 8px !important;
+  border-radius: 6px;
+  margin-top: 4px;
+}
+.msg-item:hover {
+  background-color: var(--hover-bg);
+}
+.msg-item.is-read {
+  opacity: 0.6;
+}
+.msg-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.msg-title {
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.msg-time {
+  font-size: 12px;
+  color: var(--text-sub);
+  margin-top: 8px;
+}
+.msg-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-color);
+  margin-top: 8px;
+}
+
+:global(.notification-popover .ant-popover-inner) {
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+</style>

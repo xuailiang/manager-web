@@ -22,7 +22,7 @@ import { computed } from 'vue'
 import type { ActionDef } from '../../utils/statusConfig'
 
 const props = defineProps<{
-  actions: ActionDef[]
+  actions: ActionDef<any>[]
 }>()
 
 const emit = defineEmits<{

@@ -50,7 +50,7 @@
             :min="-120"
             :max="1440"
             :value="model.slaRange"
-            @change="(value) => setField('slaRange', value as [number, number])"
+            @change="(value: any) => setField('slaRange', value as [number, number])"
           />
         </div>
         <div class="pg-range-item">
@@ -61,7 +61,7 @@
             :max="20"
             :step="0.5"
             :value="model.complaintRange"
-            @change="(value) => setField('complaintRange', value as [number, number])"
+            @change="(value: any) => setField('complaintRange', value as [number, number])"
           />
         </div>
         <div class="pg-range-item">
@@ -71,7 +71,7 @@
             :min="0"
             :max="100"
             :value="model.violationRange"
-            @change="(value) => setField('violationRange', value as [number, number])"
+            @change="(value: any) => setField('violationRange', value as [number, number])"
           />
         </div>
         <div class="pg-range-item">
@@ -81,7 +81,7 @@
             :min="0"
             :max="100"
             :value="model.mediaRange"
-            @change="(value) => setField('mediaRange', value as [number, number])"
+            @change="(value: any) => setField('mediaRange', value as [number, number])"
           />
         </div>
       </div>

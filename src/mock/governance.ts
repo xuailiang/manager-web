@@ -1,4 +1,6 @@
 import type {
+  BrandItem,
+  CategoryItem,
   GovernanceAuditLog,
   GovernanceExportTask,
   GovernanceMessage,
@@ -937,3 +939,266 @@ export const getGovernanceAuditLogs = () => deepClone(auditLogs)
 export const getGovernanceMessages = () => deepClone(governanceMessages)
 
 export const getGovernanceExportTasks = () => deepClone(governanceExportTasks)
+
+const brandList: BrandItem[] = [
+  {
+    id: 'b-1001',
+    name: '亮牌',
+    enName: 'L&P',
+    logo: 'https://picsum.photos/id/1025/120/120',
+    company: '亮牌(中国)有限公司',
+    level: 'top',
+    status: 'active',
+    merchantCount: 124,
+    createdAt: '2023-01-12 10:00:00',
+  },
+  {
+    id: 'b-1002',
+    name: '萌宠家',
+    enName: 'MengChong',
+    logo: 'https://picsum.photos/id/1062/120/120',
+    company: '萌宠家(深圳)科技有限公司',
+    level: 'normal',
+    status: 'active',
+    merchantCount: 35,
+    createdAt: '2024-05-20 14:30:00',
+  },
+  {
+    id: 'b-1003',
+    name: '山寨宝',
+    enName: '',
+    logo: 'https://picsum.photos/id/237/120/120',
+    company: '不明注册地控股',
+    level: 'risk',
+    status: 'inactive',
+    merchantCount: 3,
+    createdAt: '2025-11-11 09:12:00',
+  },
+  {
+    id: 'b-1004',
+    name: '喵管家',
+    enName: 'MeowKeeper',
+    logo: 'https://picsum.photos/id/40/120/120',
+    company: '山东喵管家智能科技有限公司',
+    level: 'normal',
+    status: 'active',
+    merchantCount: 1,
+    createdAt: '2026-01-10 08:00:00',
+  },
+]
+
+const categoryTree: CategoryItem[] = [
+  {
+    id: 'cat-1',
+    parentId: null,
+    name: '宠物生活',
+    level: 1,
+    hasChildren: true,
+    commissionRate: 5.0,
+    requireCert: false,
+    depositAmount: 10000,
+    status: 'active',
+    children: [
+      {
+        id: 'cat-1-1',
+        parentId: 'cat-1',
+        name: '宠物干粮',
+        level: 2,
+        hasChildren: true,
+        commissionRate: 3.5,
+        requireCert: true,
+        depositAmount: 50000,
+        status: 'active',
+        children: [
+          {
+            id: 'cat-1-1-1',
+            parentId: 'cat-1-1',
+            name: '猫粮',
+            level: 3,
+            hasChildren: false,
+            commissionRate: 3.5,
+            requireCert: true,
+            depositAmount: 50000,
+            status: 'active',
+          },
+          {
+            id: 'cat-1-1-2',
+            parentId: 'cat-1-1',
+            name: '狗粮',
+            level: 3,
+            hasChildren: false,
+            commissionRate: 3.5,
+            requireCert: true,
+            depositAmount: 50000,
+            status: 'active',
+          },
+        ],
+      },
+      {
+        id: 'cat-1-2',
+        parentId: 'cat-1',
+        name: '宠物玩具',
+        level: 2,
+        hasChildren: true,
+        commissionRate: 8.0,
+        requireCert: false,
+        depositAmount: 5000,
+        status: 'active',
+        children: [
+          {
+            id: 'cat-1-2-1',
+            parentId: 'cat-1-2',
+            name: '猫玩具',
+            level: 3,
+            hasChildren: false,
+            commissionRate: 8.0,
+            requireCert: false,
+            depositAmount: 5000,
+            status: 'active',
+          },
+        ],
+      },
+      {
+        id: 'cat-1-3',
+        parentId: 'cat-1',
+        name: '医药保健 (禁入)',
+        level: 2,
+        hasChildren: false,
+        commissionRate: 15.0,
+        requireCert: true,
+        depositAmount: 200000,
+        status: 'disabled',
+      },
+    ],
+  },
+  {
+    id: 'cat-2',
+    parentId: null,
+    name: '家用电器',
+    level: 1,
+    hasChildren: true,
+    commissionRate: 6.0,
+    requireCert: true,
+    depositAmount: 30000,
+    status: 'active',
+    children: [
+      {
+        id: 'cat-2-1',
+        parentId: 'cat-2',
+        name: '生活电器',
+        level: 2,
+        hasChildren: false,
+        commissionRate: 6.0,
+        requireCert: true,
+        depositAmount: 30000,
+        status: 'active',
+      },
+    ],
+  },
+]
+
+export const getBrandList = () => deepClone(brandList)
+export const getCategoryTree = () => deepClone(categoryTree)
+
+export const upsertGovernanceBrand = (payload: Partial<BrandItem> & { name: string; company: string }) => {
+  if (payload.id) {
+    const existing = brandList.find(b => b.id === payload.id)
+    if (!existing) throw new Error('品牌不存在')
+    Object.assign(existing, payload)
+    return existing
+  }
+  const newBrand: BrandItem = {
+    id: `b-${idSeed()}`,
+    name: payload.name,
+    enName: payload.enName || '',
+    logo: payload.logo || 'https://picsum.photos/id/1025/120/120',
+    company: payload.company,
+    level: payload.level || 'normal',
+    status: payload.status || 'active',
+    merchantCount: 0,
+    createdAt: nowText(),
+  }
+  brandList.unshift(newBrand)
+  return newBrand
+}
+
+export const updateBrandRiskLevel = (brandId: string, isRisk: boolean) => {
+  const brand = brandList.find(b => b.id === brandId)
+  if (!brand) throw new Error('品牌不存在')
+  if (brand.level === 'banned') throw new Error('封禁品牌无法直接变更风险状态')
+  brand.level = isRisk ? 'risk' : 'normal'
+  return brand
+}
+
+export const resolveBrandAuthorization = (brandId: string, decision: 'approve' | 'reject') => {
+  const brand = brandList.find(b => b.id === brandId)
+  if (!brand) throw new Error('品牌不存在')
+  if (decision === 'approve') {
+    brand.merchantCount += 1
+  }
+  return true
+}
+
+export const upsertGovernanceCategory = (
+  payload: Partial<CategoryItem> & { name: string; level: number },
+  parentId: string | null = null,
+) => {
+  if (payload.id) {
+    const parent = parentId ? findCategoryNode(categoryTree, parentId) : null
+    const list = parent ? parent.children! : categoryTree
+    const target = list.find(c => c.id === payload.id)
+    if (!target) throw new Error('类目不存在')
+    Object.assign(target, payload)
+    return target
+  }
+
+  const newNode: CategoryItem = {
+    id: `cat-${idSeed()}`,
+    parentId,
+    name: payload.name,
+    level: payload.level,
+    hasChildren: false,
+    commissionRate: payload.commissionRate ?? 0,
+    requireCert: payload.requireCert ?? false,
+    depositAmount: payload.depositAmount ?? 0,
+    status: payload.status || 'active',
+  }
+
+  if (parentId) {
+    const parent = findCategoryNode(categoryTree, parentId)
+    if (!parent) throw new Error('上级类目不存在')
+    if (!parent.children) parent.children = []
+    parent.children.push(newNode)
+    parent.hasChildren = true
+  } else {
+    categoryTree.push(newNode)
+  }
+  return newNode
+}
+
+const findCategoryNode = (nodes: CategoryItem[], id: string): CategoryItem | null => {
+  for (const node of nodes) {
+    if (node.id === id) return node
+    if (node.children) {
+      const found = findCategoryNode(node.children, id)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+export const toggleCategoryStatus = (categoryId: string, cascade: boolean = false) => {
+  const node = findCategoryNode(categoryTree, categoryId)
+  if (!node) throw new Error('类目不存在')
+  const newStatus = node.status === 'active' ? 'disabled' : 'active'
+
+  const setStatusDeep = (n: CategoryItem, status: 'active' | 'disabled') => {
+    n.status = status
+    if (n.children && cascade) {
+      n.children.forEach(child => setStatusDeep(child, status))
+    }
+  }
+
+  setStatusDeep(node, newStatus)
+  return node
+}
